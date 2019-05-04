@@ -1,1 +1,0 @@
-javac -cp "library.jar;json.jar" Server.java
