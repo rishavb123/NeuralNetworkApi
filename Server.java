@@ -23,22 +23,6 @@ public class Server {
 		
 		HashMap<String, NeuralNetwork> map = new HashMap<>();
 		
-		server.createContext("/test", new HttpHandler() {
-
-			@Override
-			public void handle(HttpExchange exchange) throws IOException {
-				JSONObject obj = requestToInput(exchange);
-				String input = obj.toString();
-				System.out.println(exchange.getRequestMethod() + " /test " + input.replace('\n', ' ').replace("\t", "") + " " + obj.getString("message"));
-				String response = "<h1>Hi " + obj.getString("user") + "</h1><br/><p>Your Message was " + obj.getString("message") + "</p>";
-				exchange.sendResponseHeaders(200, response.length());
-				OutputStream outputStream = exchange.getResponseBody();
-				outputStream.write(response.getBytes());
-				outputStream.close();
-			}
-			
-		});
-		
 		server.createContext("/rand", new HttpHandler() {
 
 			@Override
@@ -265,27 +249,6 @@ public class Server {
 		System.out.println("Server running on port 5000");
 		server.start();
 		
-	}
-	
-	public static JSONObject requestToInput(HttpExchange exchange) {
-		switch(exchange.getRequestMethod()) {
-			case "GET":
-				String query = exchange.getRequestURI().getQuery();
-				String[] arr = query.split("&");
-				JSONObject input = new JSONObject();
-				for(String a: arr)
-				{
-					String[] var = a.split("=");
-					input.put(var[0], var[1]);
-				}
-				return input;
-			case "POST":
-				InputStream inputStream = exchange.getRequestBody();
-				String jsonStr = StreamUtil.readString(inputStream);
-				JSONObject obj = new JSONObject(jsonStr);
-				return obj;
-		}
-		return new JSONObject();
 	}
 	
 	public static String getRandomString() {
