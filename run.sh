@@ -1,1 +1,1 @@
-java Server
+java -cp "library.jar:json.jar" Server.java

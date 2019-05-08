@@ -18,23 +18,12 @@ import io.bhagat.util.StreamUtil;
 
 public class Server {
 
+	public static final int PORT = Port.PORT;
+
 	public static void main(String[] args) throws IOException {
-		HttpServer server = HttpServer.create(new InetSocketAddress(5000), 0);
+		HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
 		
 		HashMap<String, NeuralNetwork> map = new HashMap<>();
-		
-		server.createContext("/rand", new HttpHandler() {
-
-			@Override
-			public void handle(HttpExchange exchange) throws IOException {
-				String response = getRandomString();
-				exchange.sendResponseHeaders(200, response.length());
-				OutputStream outputStream = exchange.getResponseBody();
-				outputStream.write(response.getBytes());
-				outputStream.close();				
-			}
-			
-		});
 		
 		server.createContext("/create", new HttpHandler() {
 
@@ -246,7 +235,7 @@ public class Server {
 			
 		});
 	
-		System.out.println("Server running on port 5000");
+		System.out.println("Server running on port " + PORT);
 		server.start();
 		
 	}
