@@ -88,6 +88,70 @@ public class Server {
 			
 		});
 		
+		server.createContext("/destroy", new HttpHandler() {
+
+			@Override
+			public void handle(HttpExchange exchange) throws IOException {
+				if(!exchange.getRequestMethod().equals("POST"))
+				{
+					System.out.println("NOT POST");
+					String response = "ERROR: only support POST requests";
+					exchange.sendResponseHeaders(500, response.length());
+					OutputStream outputStream = exchange.getResponseBody();
+					outputStream.write(response.getBytes());
+					outputStream.close();
+					return;
+				}
+				
+				InputStream inputStream = exchange.getRequestBody();
+				String jsonStr = StreamUtil.readString(inputStream);
+				JSONObject obj = new JSONObject(jsonStr);
+
+				try {
+					if(obj.getString("key") == null || !map.containsKey(obj.getString("key")))
+					{
+						String response = "ERROR: invalid data or key";
+						exchange.sendResponseHeaders(400, response.length());
+						OutputStream outputStream = exchange.getResponseBody();
+						outputStream.write(response.getBytes());
+						outputStream.close();
+						return;
+					}
+				} catch(JSONException e) {
+					String response = "ERROR: invalid data or key";
+					exchange.sendResponseHeaders(400, response.length());
+					OutputStream outputStream = exchange.getResponseBody();
+					outputStream.write(response.getBytes());
+					outputStream.close();
+					return;
+				}
+				
+				String key = obj.getString("key");
+				
+				if(map.get(key).getNumOfInputs() != input.length)
+				{
+					String response = "ERROR: invalid input or key";
+					exchange.sendResponseHeaders(400, response.length());
+					OutputStream outputStream = exchange.getResponseBody();
+					outputStream.write(response.getBytes());
+					outputStream.close();
+					return;
+				}
+					
+				String response = "Success!";
+				map.remove(key);
+				
+				System.out.println("Destroyed Neural Network at key " + key);
+				
+				exchange.sendResponseHeaders(200, response.length());
+				OutputStream outputStream = exchange.getResponseBody();
+				outputStream.write(response.getBytes());
+				outputStream.close();
+				
+			}
+			
+		});
+
 		server.createContext("/predict", new HttpHandler() {
 
 			@Override
