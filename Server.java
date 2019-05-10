@@ -127,16 +127,6 @@ public class Server {
 				}
 				
 				String key = obj.getString("key");
-				
-				if(map.get(key).getNumOfInputs() != input.length)
-				{
-					String response = "ERROR: invalid input or key";
-					exchange.sendResponseHeaders(400, response.length());
-					OutputStream outputStream = exchange.getResponseBody();
-					outputStream.write(response.getBytes());
-					outputStream.close();
-					return;
-				}
 					
 				String response = "Success!";
 				map.remove(key);
