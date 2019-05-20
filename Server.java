@@ -12,13 +12,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.bhagat.artificialintelligence.NeuralNetwork;
+import io.bhagat.ai.supervised.NeuralNetwork;
 import io.bhagat.util.ArrayUtil;
 import io.bhagat.util.StreamUtil;
 
 public class Server {
 
-	public static final int PORT = 5000;
+	public static final int PORT = 6000;
 
 	public static void main(String[] args) throws IOException {
 		HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
