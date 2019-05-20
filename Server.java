@@ -88,6 +88,60 @@ public class Server {
 			
 		});
 		
+		server.createContext("/destroy", new HttpHandler() {
+
+			@Override
+			public void handle(HttpExchange exchange) throws IOException {
+				if(!exchange.getRequestMethod().equals("POST"))
+				{
+					System.out.println("NOT POST");
+					String response = "ERROR: only support POST requests";
+					exchange.sendResponseHeaders(500, response.length());
+					OutputStream outputStream = exchange.getResponseBody();
+					outputStream.write(response.getBytes());
+					outputStream.close();
+					return;
+				}
+				
+				InputStream inputStream = exchange.getRequestBody();
+				String jsonStr = StreamUtil.readString(inputStream);
+				JSONObject obj = new JSONObject(jsonStr);
+
+				try {
+					if(obj.getString("key") == null || !map.containsKey(obj.getString("key")))
+					{
+						String response = "ERROR: invalid data or key";
+						exchange.sendResponseHeaders(400, response.length());
+						OutputStream outputStream = exchange.getResponseBody();
+						outputStream.write(response.getBytes());
+						outputStream.close();
+						return;
+					}
+				} catch(JSONException e) {
+					String response = "ERROR: invalid data or key";
+					exchange.sendResponseHeaders(400, response.length());
+					OutputStream outputStream = exchange.getResponseBody();
+					outputStream.write(response.getBytes());
+					outputStream.close();
+					return;
+				}
+				
+				String key = obj.getString("key");
+					
+				String response = "Success!";
+				map.remove(key);
+				
+				System.out.println("Destroyed Neural Network at key " + key);
+				
+				exchange.sendResponseHeaders(200, response.length());
+				OutputStream outputStream = exchange.getResponseBody();
+				outputStream.write(response.getBytes());
+				outputStream.close();
+				
+			}
+			
+		});
+
 		server.createContext("/predict", new HttpHandler() {
 
 			@Override
@@ -176,7 +230,6 @@ public class Server {
 				InputStream inputStream = exchange.getRequestBody();
 				String jsonStr = StreamUtil.readString(inputStream);
 				JSONObject obj = new JSONObject(jsonStr);
-				
 				try {
 					if(obj.getJSONArray("data") == null || obj.getString("key") == null || !map.containsKey(obj.getString("key")))
 					{
@@ -203,29 +256,33 @@ public class Server {
 				try {
 					epoch = obj.getInt("epoch");
 				} catch(JSONException e) {}
-				
-				for(int i_ = 0; i_ < epoch; i_++)
-					for(int i = 0; i < data.length(); i++)
-					{
-						JSONObject d = data.getJSONObject(i);
-						JSONArray jsonInput = d.getJSONArray("input");
-						JSONArray jsonOutput = d.getJSONArray("output");
-						if(jsonInput.length() == neuralNetwork.getNumOfInputs() && jsonOutput.length() == neuralNetwork.getNumOfOutputs())
+
+				try {
+					for(int i_ = 0; i_ < epoch; i_++)
+						for(int i = 0; i < data.length(); i++)
 						{
-							double[] inputs = new double[neuralNetwork.getNumOfInputs()];
-							double[] outputs = new double[neuralNetwork.getNumOfOutputs()];
-							
-							for(int j = 0; j < inputs.length; j++)
-								inputs[j] = jsonInput.getDouble(j);
-							for(int j = 0; j < outputs.length; j++)
-								outputs[j] = jsonOutput.getDouble(j);
-							
-							neuralNetwork.train(inputs, outputs);
+							JSONObject d = data.getJSONObject(i);
+							JSONArray jsonInput = d.getJSONArray("input");
+							JSONArray jsonOutput = d.getJSONArray("output");
+							if(jsonInput.length() == neuralNetwork.getNumOfInputs() && jsonOutput.length() == neuralNetwork.getNumOfOutputs())
+							{
+								double[] inputs = new double[neuralNetwork.getNumOfInputs()];
+								double[] outputs = new double[neuralNetwork.getNumOfOutputs()];
+								
+								for(int j = 0; j < inputs.length; j++)
+									inputs[j] = jsonInput.getDouble(j);
+								for(int j = 0; j < outputs.length; j++)
+									outputs[j] = jsonOutput.getDouble(j);
+								
+								neuralNetwork.train(inputs, outputs);
+							}
 						}
-					}
-				
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
+					
 				System.out.println("Trained " + epoch * data.length() + " examples in neural network at " + key);
-				String response = "Success";
+				String response = "Trained " + epoch * data.length() + " examples in neural network";
 				exchange.sendResponseHeaders(200, response.toString().length());
 				OutputStream outputStream = exchange.getResponseBody();
 				outputStream.write(response.toString().getBytes());
