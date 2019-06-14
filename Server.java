@@ -18,7 +18,7 @@ import io.bhagat.util.StreamUtil;
 
 public class Server {
 
-	public static final int PORT = 6000;
+	public static final int PORT = 80;
 
 	public static void main(String[] args) throws IOException {
 		HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
