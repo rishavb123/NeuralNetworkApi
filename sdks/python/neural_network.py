@@ -8,8 +8,10 @@ class NeuralNetwork:
             self.key = response.json()['key']
         elif len(args) == 1:
             self.key = args[0]
+        else:
+            self.key = ''
 
-    def connect(key):
+    def connect(self, key):
         self.key = key
 
     def train(self, inputs, outputs, epoch):
@@ -32,12 +34,7 @@ class NeuralNetwork:
             key_file.write(nn.key)
 
     @staticmethod
-    def load(filename):
-        with open(filename) as key_file:
-            return NeuralNetwork(key_file.read(nn.key))
-
-    @staticmethod
     def load(nn, filename):
         with open(filename) as key_file:
-            nn.connect(key_file.read(nn.key))
+            nn.connect(key_file.read())
             return nn
