@@ -25,3 +25,19 @@ class NeuralNetwork:
         response = requests.post('http://neuralnetworkapi.bhagat.io/destroy', json={ 'key': self.key })
         self.key = ''
         return response.text
+
+    @staticmethod
+    def save(nn, filename):
+        with open(filename, 'w') as key_file:
+            key_file.write(nn.key)
+
+    @staticmethod
+    def load(filename):
+        with open(filename) as key_file:
+            return NeuralNetwork(key_file.read(nn.key))
+
+    @staticmethod
+    def load(nn, filename):
+        with open(filename) as key_file:
+            nn.connect(key_file.read(nn.key))
+            return nn
